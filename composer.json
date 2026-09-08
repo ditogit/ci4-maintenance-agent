@@ -1,5 +1,5 @@
 {
-    "name": "organization/ci4-maintenance-agent",
+    "name": "ditogit/ci4-agent",
     "description": "Lightweight, secure, versioned REST API agent for CodeIgniter 4 — standardized monitoring & maintenance for CI4 Project Hub",
     "type": "library",
     "keywords": ["codeigniter4", "maintenance", "monitoring", "agent", "ci4"],

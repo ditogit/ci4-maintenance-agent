@@ -5,7 +5,7 @@ Lightweight, secure, versioned REST API agent for every CodeIgniter 4 app — st
 ## Install
 
 ```bash
-composer require organization/ci4-maintenance-agent
+composer require ditogit/ci4-agent
 php spark maintenance:install
 ```
 
