@@ -121,8 +121,9 @@ class InstallCommand extends BaseCommand
             return;
         }
         $replacements = [
-            "'maintenanceEnabled' => \\MaintenanceAgent\\Filters\\MaintenanceEnabledFilter::class,",
-            "'maintenanceAuth'    => \\MaintenanceAgent\\Filters\\MaintenanceAuthFilter::class,",
+            "'maintenance'          => \\MaintenanceAgent\\Filters\\MaintenanceFilter::class,",
+            "'maintenanceEnabled'   => \\MaintenanceAgent\\Filters\\MaintenanceEnabledFilter::class,",
+            "'maintenanceAuth'      => \\MaintenanceAgent\\Filters\\MaintenanceAuthFilter::class,",
             "'maintenanceRateLimit' => \\MaintenanceAgent\\Filters\\MaintenanceRateLimitFilter::class,",
         ];
         $injected = implode(PHP_EOL . '        ', $replacements);
