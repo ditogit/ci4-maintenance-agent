@@ -20,6 +20,7 @@ class InstallCommand extends BaseCommand
 
         $this->publishConfig();
         $this->generateCredentials();
+        $this->patchHmvcRoutes();
         $this->migrate();
         $this->validateSecurity();
 
@@ -88,6 +89,24 @@ class InstallCommand extends BaseCommand
         } catch (\Throwable $e) {
             CLI::write('  → Migration skipped: ' . $e->getMessage(), 'yellow');
         }
+    }
+
+    private function patchHmvcRoutes(): void
+    {
+        $routesFile = APPPATH . 'Config/Routes.php';
+        if (! is_file($routesFile)) {
+            return;
+        }
+        $content = file_get_contents($routesFile);
+        if (str_contains($content, 'ci4-agent') || str_contains($content, 'MaintenanceAgent')) {
+            return;
+        }
+        $patch = PHP_EOL . "// CI4 Maintenance Agent — auto-added by maintenance:install" . PHP_EOL
+            . "if (file_exists(ROOTPATH . 'vendor/ditogit/ci4-agent/src/Config/Routes.php')) {" . PHP_EOL
+            . "    require ROOTPATH . 'vendor/ditogit/ci4-agent/src/Config/Routes.php';" . PHP_EOL
+            . "}" . PHP_EOL;
+        file_put_contents($routesFile, $patch, FILE_APPEND);
+        CLI::write('  → HMVC Routes.php patched (added ci4-agent require)', 'white');
     }
 
     private function validateSecurity(): void
