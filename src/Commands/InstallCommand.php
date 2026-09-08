@@ -21,6 +21,7 @@ class InstallCommand extends BaseCommand
         $this->publishConfig();
         $this->generateCredentials();
         $this->patchHmvcRoutes();
+        $this->patchFilters();
         $this->migrate();
         $this->validateSecurity();
 
@@ -107,6 +108,31 @@ class InstallCommand extends BaseCommand
             . "}" . PHP_EOL;
         file_put_contents($routesFile, $patch, FILE_APPEND);
         CLI::write('  → HMVC Routes.php patched (added ci4-agent require)', 'white');
+    }
+
+    private function patchFilters(): void
+    {
+        $file = APPPATH . 'Config/Filters.php';
+        if (! is_file($file)) {
+            return;
+        }
+        $content = file_get_contents($file);
+        if (str_contains($content, 'maintenanceEnabled')) {
+            return;
+        }
+        $replacements = [
+            "'maintenanceEnabled' => \\MaintenanceAgent\\Filters\\MaintenanceEnabledFilter::class,",
+            "'maintenanceAuth'    => \\MaintenanceAgent\\Filters\\MaintenanceAuthFilter::class,",
+            "'maintenanceRateLimit' => \\MaintenanceAgent\\Filters\\MaintenanceRateLimitFilter::class,",
+        ];
+        $injected = implode(PHP_EOL . '        ', $replacements);
+        if (str_contains($content, '$aliases = [')) {
+            $content = str_replace('$aliases = [', '$aliases = [' . PHP_EOL . '        ' . $injected, $content);
+            file_put_contents($file, $content);
+            CLI::write('  → Filters.php patched (added maintenance aliases)', 'white');
+        } else {
+            CLI::write('  → Filters.php not patched — add aliases manually', 'yellow');
+        }
     }
 
     private function validateSecurity(): void
