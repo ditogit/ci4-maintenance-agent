@@ -1,0 +1,78 @@
+openapi: 3.0.3
+info:
+  title: CI4 Maintenance Agent
+  version: 1.0.0
+  description: Lightweight, secure REST API for CI4 Project Hub
+servers:
+  - url: https://example.ac.id/api/v1/maintenance
+security:
+  - HMAC: []
+components:
+  securitySchemes:
+    HMAC:
+      type: apiKey
+      in: header
+      name: X-Maintenance-Signature
+      description: HMAC-SHA256(timestamp+nonce+METHOD+path+body, secret) + X-Maintenance-Key, X-Maintenance-Timestamp, X-Maintenance-Nonce
+  schemas:
+    Success:
+      type: object
+      properties:
+        success: { type: boolean, example: true }
+        data: { type: object }
+        request_id: { type: string, example: mnt_abc123 }
+    Error:
+      type: object
+      properties:
+        success: { type: boolean, example: false }
+        error:
+          type: object
+          properties:
+            code: { type: string, example: UNAUTHORIZED }
+            message: { type: string }
+        request_id: { type: string }
+paths:
+  /health:
+    get:
+      summary: Health check
+      operationId: getHealth
+      responses:
+        200: { description: Healthy, content: { application/json: { schema: { $ref: '#/components/schemas/Success' } } } }
+        401: { description: Unauthorized }
+        503: { description: Agent disabled }
+  /info:
+    get:
+      summary: Application info
+      responses:
+        200: { description: Info }
+        401: { description: Unauthorized }
+  /session/stats:
+    get:
+      summary: Session statistics
+      responses:
+        200: { description: Stats }
+        403: { description: Feature disabled }
+  /session/cleanup:
+    post:
+      summary: Cleanup expired sessions (batch, locked)
+      requestBody: { content: { application/json: { schema: { type: object, properties: { mode: { type: string, enum: [expired], example: expired } } } } } }
+      responses:
+        200: { description: Cleaned }
+        409: { description: Already in progress }
+        429: { description: Rate limited }
+  /session/clear:
+    post:
+      summary: Clear all sessions (dangerous, disabled by default)
+      responses:
+        200: { description: Cleared }
+        403: { description: Feature disabled }
+  /database:
+    get:
+      summary: Database stats
+      responses:
+        200: { description: DB stats }
+  /storage:
+    get:
+      summary: Storage stats
+      responses:
+        200: { description: Storage stats }
