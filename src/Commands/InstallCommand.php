@@ -117,20 +117,31 @@ class InstallCommand extends BaseCommand
             return;
         }
         $content = file_get_contents($file);
-        if (str_contains($content, 'maintenanceEnabled')) {
+        $content = str_replace("maintenanceEnabled' =>", "'maintenanceEnabled' =>", $content);
+        $needed = [
+            "'maintenance'"          => "'maintenance'          => \\MaintenanceAgent\\Filters\\MaintenanceFilter::class,",
+            "'maintenanceEnabled'"   => "'maintenanceEnabled'   => \\MaintenanceAgent\\Filters\\MaintenanceEnabledFilter::class,",
+            "'maintenanceAuth'"      => "'maintenanceAuth'      => \\MaintenanceAgent\\Filters\\MaintenanceAuthFilter::class,",
+            "'maintenanceRateLimit'" => "'maintenanceRateLimit' => \\MaintenanceAgent\\Filters\\MaintenanceRateLimitFilter::class,",
+        ];
+        $missing = [];
+        foreach ($needed as $key => $line) {
+            if (! str_contains($content, $key)) {
+                $missing[] = $line;
+            }
+        }
+        if ($missing === []) {
+            if (str_contains($content, "maintenanceEnabled' =>")) {
+                file_put_contents($file, $content);
+                CLI::write('  → Filters.php fixed (quote)', 'white');
+            }
             return;
         }
-        $replacements = [
-            "'maintenance'          => \\MaintenanceAgent\\Filters\\MaintenanceFilter::class,",
-            "'maintenanceEnabled'   => \\MaintenanceAgent\\Filters\\MaintenanceEnabledFilter::class,",
-            "'maintenanceAuth'      => \\MaintenanceAgent\\Filters\\MaintenanceAuthFilter::class,",
-            "'maintenanceRateLimit' => \\MaintenanceAgent\\Filters\\MaintenanceRateLimitFilter::class,",
-        ];
-        $injected = implode(PHP_EOL . '        ', $replacements);
+        $injected = implode(PHP_EOL . '        ', $missing);
         if (str_contains($content, '$aliases = [')) {
             $content = str_replace('$aliases = [', '$aliases = [' . PHP_EOL . '        ' . $injected, $content);
             file_put_contents($file, $content);
-            CLI::write('  → Filters.php patched (added maintenance aliases)', 'white');
+            CLI::write('  → Filters.php patched (added: ' . implode(', ', array_keys($missing)) . ')', 'white');
         } else {
             CLI::write('  → Filters.php not patched — add aliases manually', 'yellow');
         }
