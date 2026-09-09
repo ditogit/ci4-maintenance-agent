@@ -11,6 +11,33 @@ php spark maintenance:install
 
 Publishes `app/Config/Maintenance.php`, appends `MAINTENANCE_API_KEY/SECRET` to `.env`, migrates `maintenance_audit_logs`.
 
+## Manual Install (cPanel / No CLI)
+
+Jika tidak ada akses SSH/CLI:
+
+1. Download zip dari Releases, extract ke `vendor/ditogit/ci4-agent` via File Manager
+2. Tambah di `app/Config/Autoload.php`: `'MaintenanceAgent' => ROOTPATH.'vendor/ditogit/ci4-agent/src'`
+3. Upload `public/maintenance_installer.php` dari package ke `public/maintenance_installer.php`
+4. Edit file, ganti `INSTALLER_TOKEN` dengan random 32 char
+5. Buka browser: `https://domain.com/maintenance_installer.php?token=TOKEN_KAMU`
+6. Installer akan: publish `app/Config/Maintenance.php`, generate `MAINTENANCE_API_KEY/SECRET` ke `.env`, patch `app/Config/Routes.php` & `app/Config/Filters.php`, migrate `maintenance_audit_logs` (fallback raw SQL jika Forge gagal)
+7. Simpan credentials yang tampil, klik **Hapus installer** atau hapus manual — wajib hapus setelah selesai
+8. Jika DB gagal, import manual via phpMyAdmin:
+
+```sql
+CREATE TABLE IF NOT EXISTS `maintenance_audit_logs` (
+  `id` INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  `request_id` VARCHAR(64) NULL,
+  `action` VARCHAR(64) NOT NULL,
+  `status` VARCHAR(32) NOT NULL,
+  `affected_rows` INT DEFAULT 0,
+  `ip_address` VARCHAR(45) NULL,
+  `metadata` TEXT NULL,
+  `created_at` DATETIME NULL,
+  KEY `action` (`action`), KEY `created_at` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+```
+
 ## Configure (.env)
 
 ```env
