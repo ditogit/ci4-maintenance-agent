@@ -14,4 +14,11 @@ $routes->group('api/v1/maintenance', ['namespace' => 'MaintenanceAgent\Controlle
     $routes->post('session/clear', 'SessionController::clear');
     $routes->get('database', 'DatabaseController::index');
     $routes->get('storage', 'StorageController::index');
+    $routes->post('cache/clear', 'CacheController::clear');
+    $routes->get('logs', 'LogController::index');
+    $routes->post('logs/clear', 'LogController::clear');
+    $routes->post('backup', 'BackupController::create');
+    $routes->get('queue', 'QueueController::index');
+    $routes->post('queue/retry', 'QueueController::retry');
+    $routes->post('queue/clear', 'QueueController::clear');
 });

@@ -41,11 +41,19 @@ class MaintenanceRateLimitFilter implements FilterInterface
 
     private function resolveLimit(string $path, Maintenance $config): array
     {
-        if ($path === 'api/v1/maintenance/session/clear') {
+        if ($path === 'api/v1/maintenance/cache/clear') {
+            return [$config->rateLimitCache, 60, 'cache'];
+        }
+
+        if (in_array($path, ['api/v1/maintenance/logs', 'api/v1/maintenance/logs/clear'], true)) {
+            return [$config->rateLimitLogs, 60, 'logs'];
+        }
+
+        if (in_array($path, ['api/v1/maintenance/session/clear', 'api/v1/maintenance/queue/clear'], true)) {
             return [$config->rateLimitClear, 60, 'clear'];
         }
 
-        if (in_array($path, ['api/v1/maintenance/session/cleanup'], true)) {
+        if (in_array($path, ['api/v1/maintenance/session/cleanup', 'api/v1/maintenance/backup', 'api/v1/maintenance/queue/retry'], true)) {
             return [$config->rateLimitMaintenance, 60, 'maintenance'];
         }
 

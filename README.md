@@ -23,6 +23,10 @@ MAINTENANCE_SESSION_CLEANUP=true
 MAINTENANCE_SESSION_CLEAR=false
 MAINTENANCE_DATABASE_STATS=true
 MAINTENANCE_STORAGE_STATS=true
+MAINTENANCE_CACHE_CLEAR=true
+MAINTENANCE_LOG_VIEWER=true
+MAINTENANCE_BACKUP=false
+MAINTENANCE_QUEUE=false
 MAINTENANCE_IP_ALLOWLIST=
 MAINTENANCE_SESSION_CLEANUP_BATCH=5000
 MAINTENANCE_SESSION_CLEANUP_TIMEOUT=30
@@ -41,6 +45,13 @@ Prefix ` /api/v1/maintenance` — HMAC auth required.
 | POST | /session/clear | maintenance.session.clear |
 | GET | /database | maintenance.database.read |
 | GET | /storage | maintenance.storage.read |
+| POST | /cache/clear | maintenance.cache.clear |
+| GET | /logs | maintenance.logs.read |
+| POST | /logs/clear | maintenance.logs.clear |
+| POST | /backup | maintenance.backup.create |
+| GET | /queue | maintenance.queue.read |
+| POST | /queue/retry | maintenance.queue.retry |
+| POST | /queue/clear | maintenance.queue.clear |
 
 Headers:
 ```

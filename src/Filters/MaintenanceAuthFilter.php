@@ -95,6 +95,13 @@ class MaintenanceAuthFilter implements FilterInterface
             'api/v1/maintenance/session/clear'  => 'maintenance.session.clear',
             'api/v1/maintenance/database'       => 'maintenance.database.read',
             'api/v1/maintenance/storage'        => 'maintenance.storage.read',
+            'api/v1/maintenance/cache/clear'    => 'maintenance.cache.clear',
+            'api/v1/maintenance/logs'           => 'maintenance.logs.read',
+            'api/v1/maintenance/logs/clear'     => 'maintenance.logs.clear',
+            'api/v1/maintenance/backup'         => 'maintenance.backup.create',
+            'api/v1/maintenance/queue'          => 'maintenance.queue.read',
+            'api/v1/maintenance/queue/retry'    => 'maintenance.queue.retry',
+            'api/v1/maintenance/queue/clear'    => 'maintenance.queue.clear',
         ];
 
         $permission = $map[$path] ?? null;
@@ -120,6 +127,22 @@ class MaintenanceAuthFilter implements FilterInterface
         }
 
         if ($permission === 'maintenance.storage.read' && ! $config->storageStats) {
+            return false;
+        }
+
+        if ($permission === 'maintenance.cache.clear' && ! $config->cacheClear) {
+            return false;
+        }
+
+        if (in_array($permission, ['maintenance.logs.read', 'maintenance.logs.clear'], true) && ! $config->logViewer) {
+            return false;
+        }
+
+        if ($permission === 'maintenance.backup.create' && ! $config->backup) {
+            return false;
+        }
+
+        if (in_array($permission, ['maintenance.queue.read', 'maintenance.queue.retry', 'maintenance.queue.clear'], true) && ! $config->queue) {
             return false;
         }
 

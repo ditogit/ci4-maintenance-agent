@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: CI4 Maintenance Agent
-  version: 1.0.0
+  version: 1.1.0
   description: Lightweight, secure REST API for CI4 Project Hub
 servers:
   - url: https://example.ac.id/api/v1/maintenance
@@ -76,3 +76,49 @@ paths:
       summary: Storage stats
       responses:
         200: { description: Storage stats }
+  /cache/clear:
+    post:
+      summary: Clear cache
+      requestBody: { content: { application/json: { schema: { type: object, properties: { type: { type: string, enum: [all, file, config, route], example: all } } } } } }
+      responses:
+        200: { description: Cache cleared }
+        403: { description: Feature disabled }
+        409: { description: Already in progress }
+  /logs:
+    get:
+      summary: Tail logs
+      parameters:
+        - { name: channel, in: query, schema: { type: string, enum: [all, error, security] }, required: false }
+        - { name: limit, in: query, schema: { type: integer, default: 100 }, required: false }
+      responses:
+        200: { description: Logs }
+        403: { description: Feature disabled }
+  /logs/clear:
+    post:
+      summary: Clear logs (confirm=CLEAR LOGS)
+      requestBody: { content: { application/json: { schema: { type: object, properties: { confirm: { type: string, example: CLEAR LOGS } } } } } }
+      responses:
+        200: { description: Logs cleared }
+        403: { description: Feature disabled }
+        422: { description: Confirmation required }
+  /backup:
+    post:
+      summary: Create database backup
+      responses:
+        200: { description: Backup created, content: { application/json: { schema: { type: object, properties: { file: { type: string }, size_mb: { type: number }, duration_ms: { type: integer } } } } } }
+        403: { description: Feature disabled }
+  /queue:
+    get:
+      summary: Queue stats
+      responses:
+        200: { description: Queue stats }
+  /queue/retry:
+    post:
+      summary: Retry failed queue jobs
+      responses:
+        200: { description: Retried }
+  /queue/clear:
+    post:
+      summary: Clear failed queue jobs
+      responses:
+        200: { description: Cleared }
